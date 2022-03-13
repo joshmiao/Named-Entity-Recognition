@@ -1,7 +1,7 @@
 data_source = open("./data_source/data_source.txt", "r")
 
 '''
-the 'data' array contains 'word' in the following format:
+the 'data' list contains 'word' in the following format:
     word : [text, type, organization_mark, place_mark, name_mark]
     text : {string}
     type : {string}
@@ -27,13 +27,11 @@ for word in data:
     mark.append(1) if word[1] == 'nr' else mark.append(0)
     word += mark
 
-# print(data)
 idx = 0
 while idx < len(data):
     if data[idx][0].find('[') != -1:
         end_id = idx + 1
         while data[end_id][1].find(']') == -1:
-            # print(data[end_id])
             end_id += 1
         ty = data[end_id][1].split(']')[1]
         data[end_id][1] = data[end_id][1].split(']')[0]
@@ -55,4 +53,5 @@ while idx < len(data):
             idx += 1
     else:
         idx += 1
-print(data)
+data_output = open("./data_source/data_output.txt", "w")
+print(data, file=data_output)
