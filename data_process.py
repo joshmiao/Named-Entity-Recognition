@@ -10,7 +10,7 @@ the 'data' list contains 'word' in the following format:
     name_mark : {0, 1, 2}
     0 for O(Outside), 1 for B(Begin), 2 for I(Inside)
 '''
-data = []
+data = list()
 
 # processing and marking data
 
@@ -30,12 +30,15 @@ for word in data:
 idx = 0
 while idx < len(data):
     if data[idx][0].find('[') != -1:
+        # find the end of a combination name
         end_id = idx + 1
         while data[end_id][1].find(']') == -1:
             end_id += 1
+        # process name and type
         ty = data[end_id][1].split(']')[1]
         data[end_id][1] = data[end_id][1].split(']')[0]
         data[idx][0] = data[idx][0].split('[')[1]
+        # marking Begin item
         if ty == 'nt':
             data[idx][2] = 1
         elif ty == 'ns':
@@ -43,6 +46,7 @@ while idx < len(data):
         elif ty == 'nr':
             data[idx][4] = 1
         idx += 1
+        # marking Inside item
         while idx <= end_id:
             if ty == 'nt':
                 data[idx][2] = 2
@@ -53,5 +57,26 @@ while idx < len(data):
             idx += 1
     else:
         idx += 1
-data_output = open("./data_source/data_output.txt", "w")
-print(data, file=data_output)
+
+# data_output = open("./data_source/data_output.txt", "w")
+# print(data, file=data_output)
+
+# making dictionary of commonly used words
+
+dict_size = 5000
+cnt = dict()
+dic = dict()
+cnt_ordered = list()
+
+for word in data:
+    cnt[word[0]] = cnt.get(word[0], 0) + 1
+for key in cnt:
+    cnt_ordered.append([key, cnt[key]])
+cnt_ordered.sort(key=lambda x: x[1], reverse=True)
+
+dict_size = min(dict_size, len(cnt_ordered))
+
+for idx in range(dict_size):
+    dic[cnt_ordered[idx][0]] = idx
+
+# creating tensor
