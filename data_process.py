@@ -1,4 +1,4 @@
-data_source = open("./data_source/data_source.txt", "r")
+data_source = open('./data_source/data_source.txt', 'r')
 
 '''
 the 'data' list contains 'word' in the following format:
@@ -63,7 +63,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 5000
+dict_size = 10
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
@@ -77,6 +77,18 @@ cnt_ordered.sort(key=lambda x: x[1], reverse=True)
 dict_size = min(dict_size, len(cnt_ordered))
 
 for idx in range(dict_size):
-    dic[cnt_ordered[idx][0]] = idx
+    dic[cnt_ordered[idx][0]] = idx + 1
 
 # creating tensor
+
+tens = list()
+empty_list = [0] * (dict_size + 1) * 3
+print(len(data))
+for idx in range(1, len(data) - 1):
+    x = empty_list.copy()
+    label = [data[idx][2], data[idx][3], data[idx][4]]
+    x[dic.get(data[idx - 1][0], 0)] = 1
+    x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1
+    x[dic.get(data[idx + 1][0], 0) + 2 * (dict_size + 1)] = 1
+    tens.append([x, label])
+print(tens)
