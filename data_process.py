@@ -24,7 +24,14 @@ for word in data:
     mark = []
     mark.append(1) if word[1] == 'nt' else mark.append(0)
     mark.append(1) if word[1] == 'ns' else mark.append(0)
-    mark.append(1) if word[1] == 'nr' else mark.append(0)
+    if word[1] == 'nr':
+        mark.append(1)
+    elif word[1] == 'nrf':
+        mark.append(1)
+    elif word[1] == 'nrg':
+        mark.append(2)
+    else:
+        mark.append(0)
     word += mark
 
 idx = 0
@@ -91,4 +98,6 @@ for idx in range(1, len(data) - 1):
     x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1
     x[dic.get(data[idx + 1][0], 0) + 2 * (dict_size + 1)] = 1
     tens.append([x, label])
-print(tens)
+check_data = open("./data_source/check_data.txt", "w")
+for pair in tens:
+    print(pair, file=check_data)
