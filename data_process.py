@@ -70,7 +70,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 10
+dict_size = 50
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
