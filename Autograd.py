@@ -115,16 +115,21 @@ if len(x_tlist) != len(y_tlist):
 sample_cnt = len(x_tlist)
 batch_size = sample_cnt
 epoch = 100
+learning_rate = 5e-3
 
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
-
 for __epoch__idx__ in range(epoch):
+    print("epoch", __epoch__idx__)
     lo = torch.zeros(1, device=device, dtype=torch.float)
-    for idx in range(sample_cnt // 10):
+    for idx in range(sample_cnt // 100):
         sigma = torch.zeros(1, device=device, dtype=torch.float)
         for i in range(3):
             sigma += torch.exp(theta[i] @ x_tlist[idx])
         sigma = torch.log(sigma)
         lo += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
     lo.backward(retain_graph=True, gradient=torch.ones(1, dtype=torch.float32, device=device))
-    print(theta.grad)
+    print('lo = ', lo)
+    with torch.no_grad():
+        theta += learning_rate * theta.grad
+        theta.grad = None
+    print(theta)
