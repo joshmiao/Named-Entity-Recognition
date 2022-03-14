@@ -1,7 +1,7 @@
 data_source = open('./data_source/data_source.txt', 'r')
 
 '''
-the 'data' list contains 'word' in the following format:
+the 'data' list contains 'word's in the following format:
     word : [text, type, organization_mark, place_mark, name_mark]
     text : {string}
     type : {string}
@@ -77,10 +77,10 @@ cnt_ordered = list()
 
 for word in data:
     cnt[word[0]] = cnt.get(word[0], 0) + 1
+
 for key in cnt:
     cnt_ordered.append([key, cnt[key]])
-cnt_ordered.sort(key=lambda x: x[1], reverse=True)
-
+cnt_ordered.sort(key=lambda a: a[1], reverse=True)
 dict_size = min(dict_size, len(cnt_ordered))
 
 for idx in range(dict_size):
