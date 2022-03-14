@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 data_source = open('./data_source/data_source.txt', 'r')
 
@@ -89,7 +90,11 @@ for idx in range(dict_size):
 
 # creating tensor list
 
-tlist = list()
+
+# device = torch.device('cpu')
+device = torch.device('cuda:0')
+x_tlist = list()
+y_tlist = list()
 empty_list = [0] * (dict_size + 1) * 3
 print('Total', len(data), 'words')
 for idx in range(1, len(data) - 1):
@@ -98,7 +103,28 @@ for idx in range(1, len(data) - 1):
     x[dic.get(data[idx - 1][0], 0)] = 1
     x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1
     x[dic.get(data[idx + 1][0], 0) + 2 * (dict_size + 1)] = 1
-    tlist.append([x, label])
-check_data = open("./data_source/check_data.txt", "w")
-for pair in tlist:
-    print(pair, file=check_data)
+    x_tlist.append(torch.tensor(x, device=device, dtype=torch.float))
+    y_tlist.append(torch.tensor(label, device=device, dtype=torch.int))
+
+print('done')
+#################################################################################
+
+if len(x_tlist) != len(y_tlist):
+    print('Data error!')
+
+sample_cnt = len(x_tlist)
+batch_size = sample_cnt
+epoch = 100
+
+theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
+
+for __epoch__idx__ in range(epoch):
+    lo = torch.zeros(1, device=device, dtype=torch.float)
+    for idx in range(sample_cnt // 10):
+        sigma = torch.zeros(1, device=device, dtype=torch.float)
+        for i in range(3):
+            sigma += torch.exp(theta[i] @ x_tlist[idx])
+        sigma = torch.log(sigma)
+        lo += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
+    lo.backward(retain_graph=True, gradient=torch.ones(1, dtype=torch.float32, device=device))
+    print(theta.grad)
