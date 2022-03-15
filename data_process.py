@@ -90,10 +90,9 @@ for idx in range(dict_size):
 # creating tensor list
 
 tlist = list()
-empty_list = [0] * (dict_size + 1) * 3
 print('Total', len(data), 'words')
 for idx in range(1, len(data) - 1):
-    x = empty_list.copy()
+    x = [0] * (dict_size + 1) * 3
     label = [data[idx][2], data[idx][3], data[idx][4]]
     x[dic.get(data[idx - 1][0], 0)] = 1
     x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1

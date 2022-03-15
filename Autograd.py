@@ -72,7 +72,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 50
+dict_size = 500
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
@@ -95,10 +95,9 @@ device = torch.device('cpu')
 # device = torch.device('cuda:0')
 x_tlist = list()
 y_tlist = list()
-empty_list = [0] * (dict_size + 1) * 3
 print('Total', len(data), 'words')
 for idx in range(1, len(data) - 1):
-    x = empty_list.copy()
+    x = [0] * (dict_size + 1) * 3
     label = [data[idx][2], data[idx][3], data[idx][4]]
     x[dic.get(data[idx - 1][0], 0)] = 1
     x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1
@@ -113,10 +112,10 @@ if len(x_tlist) != len(y_tlist):
     print('Data error!')
 
 sample_cnt = len(x_tlist)
-training_cnt = sample_cnt // 10
-validation_cnt = sample_cnt // 10
+training_cnt = sample_cnt // 20
+validation_cnt = sample_cnt // 20
 batch_size = training_cnt
-epoch = 15
+epoch = 40
 learning_rate = 5e-4
 
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
@@ -139,22 +138,28 @@ check_theta = open("check_theta.txt", "w")
 print(theta, file=check_theta)
 
 true_cnt, false_cnt = 0, 0
+rec, un_rec = 0, 0
 for idx in range(training_cnt, training_cnt + validation_cnt):
     y_prob = [0] * 3
     sigma = 1
     for i in range(2):
-        sigma += torch.exp(theta[i] @ x_tlist[idx]).data
+        sigma += torch.exp(theta[i] @ x_tlist[idx]).item()
     for i in range(2):
-        y_prob[i] = torch.exp(theta[i] @ x_tlist[idx]).data / sigma
+        y_prob[i] = torch.exp(theta[i] @ x_tlist[idx]).item() / sigma
     y_prob[2] = 1 / sigma
     y_predict, max_prob = 0, 0
     for i in range(3):
         if y_prob[i] > max_prob:
             max_prob = y_prob[i]
             y_predict = i
-    if y_predict == y_tlist[idx][0].data:
+    if y_tlist[idx][0].item() != 0:
+        if y_predict == y_tlist[idx][0].item():
+            rec += 1
+        else:
+            un_rec += 1
+    if y_predict == y_tlist[idx][0].item():
         true_cnt += 1
     else:
         false_cnt += 1
-    print(y_prob, y_tlist[idx][0].data)
-print('true_cnt =', true_cnt, 'false_cnt =', false_cnt)
+    print(y_prob, y_tlist[idx][0].item())
+print('true_cnt =', true_cnt, 'false_cnt =', false_cnt, 'rec =', rec, 'un_rec =', un_rec, file=check_theta)
