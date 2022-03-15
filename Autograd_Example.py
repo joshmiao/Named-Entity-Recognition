@@ -23,5 +23,5 @@ print("grad_tensors=torch.tensor([3,2,1]:", x.grad)  # tensor([42., 40., 26.])
 
 
 t1 = torch.tensor([[1, 2]])
-t2 = torch.tensor([[3, 4]])
-print(t1 @ t2.T)
+t2 = torch.tensor([2])
+print(t2.item)

@@ -91,8 +91,8 @@ for idx in range(dict_size):
 # creating tensor list
 
 
-# device = torch.device('cpu')
-device = torch.device('cuda:0')
+device = torch.device('cpu')
+# device = torch.device('cuda:0')
 x_tlist = list()
 y_tlist = list()
 empty_list = [0] * (dict_size + 1) * 3
@@ -113,11 +113,11 @@ if len(x_tlist) != len(y_tlist):
     print('Data error!')
 
 sample_cnt = len(x_tlist)
-training_cnt = sample_cnt // 100
-validation_cnt = sample_cnt // 100
+training_cnt = sample_cnt // 10
+validation_cnt = sample_cnt // 10
 batch_size = training_cnt
-epoch = 40
-learning_rate = 2e-3
+epoch = 15
+learning_rate = 5e-4
 
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
 for __epoch__idx__ in range(epoch):
@@ -138,6 +138,23 @@ for __epoch__idx__ in range(epoch):
 check_theta = open("check_theta.txt", "w")
 print(theta, file=check_theta)
 
-for idx in range(training_cnt, validation_cnt):
-    y_pred = list()
+true_cnt, false_cnt = 0, 0
+for idx in range(training_cnt, training_cnt + validation_cnt):
+    y_prob = [0] * 3
+    sigma = 1
+    for i in range(2):
+        sigma += torch.exp(theta[i] @ x_tlist[idx]).data
+    for i in range(2):
+        y_prob[i] = torch.exp(theta[i] @ x_tlist[idx]).data / sigma
+    y_prob[2] = 1 / sigma
+    y_predict, max_prob = 0, 0
     for i in range(3):
+        if y_prob[i] > max_prob:
+            max_prob = y_prob[i]
+            y_predict = i
+    if y_predict == y_tlist[idx][0].data:
+        true_cnt += 1
+    else:
+        false_cnt += 1
+    print(y_prob, y_tlist[idx][0].data)
+print('true_cnt =', true_cnt, 'false_cnt =', false_cnt)
