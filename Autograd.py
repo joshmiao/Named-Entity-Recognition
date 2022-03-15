@@ -113,23 +113,31 @@ if len(x_tlist) != len(y_tlist):
     print('Data error!')
 
 sample_cnt = len(x_tlist)
-batch_size = sample_cnt
-epoch = 100
-learning_rate = 5e-3
+training_cnt = sample_cnt // 100
+validation_cnt = sample_cnt // 100
+batch_size = training_cnt
+epoch = 40
+learning_rate = 2e-3
 
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
 for __epoch__idx__ in range(epoch):
     print("epoch", __epoch__idx__)
-    lo = torch.zeros(1, device=device, dtype=torch.float)
-    for idx in range(sample_cnt // 100):
+    li = torch.zeros(1, device=device, dtype=torch.float)
+    for idx in range(training_cnt):
         sigma = torch.zeros(1, device=device, dtype=torch.float)
         for i in range(3):
             sigma += torch.exp(theta[i] @ x_tlist[idx])
         sigma = torch.log(sigma)
-        lo += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
-    lo.backward(retain_graph=True, gradient=torch.ones(1, dtype=torch.float32, device=device))
-    print('lo = ', lo)
+        li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
+    li.backward(retain_graph=True, gradient=torch.ones(1, dtype=torch.float32, device=device))
+    print('li = ', li / sample_cnt)
     with torch.no_grad():
         theta += learning_rate * theta.grad
         theta.grad = None
     print(theta)
+check_theta = open("check_theta.txt", "w")
+print(theta, file=check_theta)
+
+for idx in range(training_cnt, validation_cnt):
+    y_pred = list()
+    for i in range(3):

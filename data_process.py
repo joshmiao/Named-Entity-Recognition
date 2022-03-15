@@ -4,12 +4,12 @@ data_source = open('./data_source/data_source.txt', 'r')
 '''
 the 'data' list contains 'word's in the following format:
     word : [text, type, organization_mark, place_mark, name_mark]
-    text : {string}
-    type : {string}
-    organization_mark : {0, 1, 2} 
-    place_mark : {0, 1, 2}
-    name_mark : {0, 1, 2}
-    0 for O(Outside), 1 for B(Begin), 2 for I(Inside)
+        text : {string}
+        type : {string}
+        organization_mark : {0, 1, 2} 
+        place_mark : {0, 1, 2}
+        name_mark : {0, 1, 2}
+             0 for O(Outside), 1 for B(Begin), 2 for I(Inside)
 '''
 data = list()
 
