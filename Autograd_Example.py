@@ -2,7 +2,7 @@ import torch
 
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
-
+'''
 # test grad 1
 x = torch.tensor([2], dtype=torch.float, requires_grad=True, device=device)
 y = 3 * x ** 2 + 2 * x
@@ -20,8 +20,12 @@ print("grad_tensors=torch.tensor([1,1,1]:", x.grad)  # tensor([14., 20., 26.])
 torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor([3, 2, 1], dtype=torch.float32, device=device))
 # y.backward(retain_graph=True, gradient=torch.tensor([3,2,1], dtype=torch.float32))
 print("grad_tensors=torch.tensor([3,2,1]:", x.grad)  # tensor([42., 40., 26.])
+'''
 
+a = torch.tensor([1, 2, 3], dtype=torch.float32, device=device, requires_grad=True)
+b = torch.tensor([4, 5, 6], dtype=torch.float32, device=device, requires_grad=True)
 
-t1 = torch.tensor([[1, 2]])
-t2 = torch.tensor([2])
-print(t2.item())
+y = a @ b
+print(y)
+torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor(1, dtype=torch.float32, device=device))
+print(a.grad)

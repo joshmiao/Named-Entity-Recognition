@@ -72,7 +72,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 500
+dict_size = 400
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
@@ -112,24 +112,26 @@ if len(x_tlist) != len(y_tlist):
     print('Data error!')
 
 sample_cnt = len(x_tlist)
-training_cnt = sample_cnt // 20
-validation_cnt = sample_cnt // 20
+training_cnt = sample_cnt // 5
+validation_cnt = sample_cnt // 3
 batch_size = training_cnt
-epoch = 40
-learning_rate = 5e-4
+epoch = 25
+learning_rate = 50
 
-theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float, requires_grad=True)
+theta = torch.randn(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
+print(theta)
 for __epoch__idx__ in range(epoch):
     print("epoch", __epoch__idx__)
-    li = torch.zeros(1, device=device, dtype=torch.float)
+    li = torch.tensor(0, device=device, dtype=torch.float)
     for idx in range(training_cnt):
-        sigma = torch.zeros(1, device=device, dtype=torch.float)
+        sigma = torch.tensor(0, device=device, dtype=torch.float32)
         for i in range(3):
             sigma += torch.exp(theta[i] @ x_tlist[idx])
         sigma = torch.log(sigma)
-        li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
-    li.backward(retain_graph=True, gradient=torch.ones(1, dtype=torch.float32, device=device))
-    print('li = ', li / sample_cnt)
+        li += theta[y_tlist[idx][2]] @ x_tlist[idx] - sigma
+    li /= training_cnt
+    li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
+    print('li = ', li)
     with torch.no_grad():
         theta += learning_rate * theta.grad
         theta.grad = None
@@ -152,14 +154,14 @@ for idx in range(training_cnt, training_cnt + validation_cnt):
         if y_prob[i] > max_prob:
             max_prob = y_prob[i]
             y_predict = i
-    if y_tlist[idx][0].item() != 0:
-        if y_predict == y_tlist[idx][0].item():
+    if y_tlist[idx][2].item() != 0:
+        if y_predict == y_tlist[idx][2].item():
             rec += 1
         else:
             un_rec += 1
-    if y_predict == y_tlist[idx][0].item():
+    if y_predict == y_tlist[idx][2].item():
         true_cnt += 1
     else:
         false_cnt += 1
-    print(y_prob, y_tlist[idx][0].item())
+    print(y_prob, y_tlist[idx][2].item())
 print('true_cnt =', true_cnt, 'false_cnt =', false_cnt, 'rec =', rec, 'un_rec =', un_rec, file=check_theta)

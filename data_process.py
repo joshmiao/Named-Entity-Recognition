@@ -66,8 +66,8 @@ while idx < len(data):
     else:
         idx += 1
 
-# data_output = open("./data_source/data_output.txt", "w")
-# print(data, file=data_output)
+data_output = open("./data_source/data_output.txt", "w")
+print(data, file=data_output)
 
 # making dictionary of commonly used words
 
