@@ -22,10 +22,13 @@ torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor([3, 2, 1
 print("grad_tensors=torch.tensor([3,2,1]:", x.grad)  # tensor([42., 40., 26.])
 '''
 
-a = torch.tensor([1, 2, 3], dtype=torch.float32, device=device, requires_grad=True)
+a = torch.tensor([[1, 2, 3], [0, 0, 0]], dtype=torch.float32, device=device, requires_grad=True)
 b = torch.tensor([4, 5, 6], dtype=torch.float32, device=device, requires_grad=True)
 
-y = a @ b
+s = a[0] @ b
+y = s
+y += - s
 print(y)
 torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor(1, dtype=torch.float32, device=device))
 print(a.grad)
+print(torch.exp(torch.tensor(1)))
