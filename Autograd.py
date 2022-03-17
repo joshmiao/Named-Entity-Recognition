@@ -115,23 +115,23 @@ sample_cnt = len(x_tlist)
 training_cnt = sample_cnt // 3 * 2
 validation_cnt = sample_cnt // 3
 batch_size = training_cnt
-epoch = 40
+epoch = 30
 learning_rate = 60
 
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
 print(theta)
 for __epoch__idx__ in range(epoch):
-    print("epoch", __epoch__idx__)
+    print("epoch :", __epoch__idx__)
     li = torch.tensor(0, device=device, dtype=torch.float32)
     for idx in range(training_cnt):
         sigma = torch.tensor(1, device=device, dtype=torch.float32)
         for i in range(2):
             sigma += torch.exp(theta[i] @ x_tlist[idx])
         sigma = torch.log(sigma)
-        if y_tlist[idx][0] == 2:
+        if y_tlist[idx][1] == 2:
             li += -sigma
         else:
-            li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
+            li += theta[y_tlist[idx][1]] @ x_tlist[idx] - sigma
     li /= training_cnt
     li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
     print('li = ', li)
@@ -157,11 +157,11 @@ for idx in range(training_cnt, training_cnt + validation_cnt):
             y_predict = i
     if y_predict != 0:
         predict_cnt += 1
-    if y_tlist[idx][0].item() != 0:
+    if y_tlist[idx][1].item() != 0:
         item_cnt += 1
-        if y_predict == y_tlist[idx][0].item():
+        if y_predict == y_tlist[idx][1].item():
             true_predict_cnt += 1
-    # print(y_prob, y_tlist[idx][0].item())
+    # print(y_prob, y_tlist[idx][1].item())
 print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt, file=check_theta)
 precision_rate,  recall_rate = true_predict_cnt / predict_cnt, true_predict_cnt / item_cnt
 print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,

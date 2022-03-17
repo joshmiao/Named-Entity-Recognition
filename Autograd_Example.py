@@ -1,5 +1,5 @@
 import torch
-
+import time
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 '''
@@ -20,7 +20,7 @@ print("grad_tensors=torch.tensor([1,1,1]:", x.grad)  # tensor([14., 20., 26.])
 torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor([3, 2, 1], dtype=torch.float32, device=device))
 # y.backward(retain_graph=True, gradient=torch.tensor([3,2,1], dtype=torch.float32))
 print("grad_tensors=torch.tensor([3,2,1]:", x.grad)  # tensor([42., 40., 26.])
-'''
+
 
 a = torch.tensor([[1, 2, 3], [0, 0, 0]], dtype=torch.float32, device=device, requires_grad=True)
 b = torch.tensor([4, 5, 6], dtype=torch.float32, device=device, requires_grad=True)
@@ -32,3 +32,13 @@ print(y)
 torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor(1, dtype=torch.float32, device=device))
 print(a.grad)
 print(torch.exp(torch.tensor(1)))
+'''
+
+st = time.time()
+a = torch.randn(5000000, dtype=torch.float32)
+a = a.cuda()
+for i in range(10000):
+    a = torch.sqrt(a * a)
+print(a)
+print(time.time() - st)
+
