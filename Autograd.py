@@ -106,7 +106,7 @@ for idx in range(1, len(data) - 1):
     x_tlist.append(torch.tensor(x, device=device, dtype=torch.float))
     y_tlist.append(torch.tensor(label, device=device, dtype=torch.int))
 
-print('done')
+print('Pre_processing data done!')
 #################################################################################
 
 if len(x_tlist) != len(y_tlist):
@@ -145,13 +145,15 @@ def check(output_file=None, output_prob=False):
             print(y_prob, y_tlist[idx][0].item(), file=output_file)
     print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt,
           file=output_file)
-    precision_rate, recall_rate = 0, 0
+    precision_rate, recall_rate, f1_measure = 0, 0, 0
     if item_cnt != 0:
         recall_rate = true_predict_cnt / item_cnt
     if predict_cnt != 0:
         precision_rate = true_predict_cnt / predict_cnt
+    if precision_rate + recall_rate != 0:
+        f1_measure = 2 * precision_rate * recall_rate / (precision_rate + recall_rate)
     print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
-          'F1_measure =', 2 * precision_rate * recall_rate / (precision_rate + recall_rate),
+          'F1_measure =', f1_measure,
           file=output_file)
 
 
@@ -178,13 +180,13 @@ while stop != 1:
             theta += learning_rate * theta.grad
             theta.grad = None
         print(theta)
-        print('used time = {:0} second(s)'.format(time.time() - st_time))
+        print('Used time = {:0} second(s)'.format(time.time() - st_time))
         check()
-    print('want to stop? (y/n)')
-    if input() != 'y':
-        print('please input number of epoch:', '(now{:0})'.format(epoch))
+    print('Want to continue? (y/n)')
+    if input() != 'n':
+        print('Please input number of epoch:', '(now : {:0})'.format(epoch))
         epoch = eval(input())
-        print('please input learning rate', '(now{:0})'.format(learning_rate))
+        print('Please input learning rate', '(now : {:0})'.format(learning_rate))
         learning_rate = eval(input())
     else:
         stop = 1
