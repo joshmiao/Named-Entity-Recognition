@@ -1,4 +1,5 @@
 import torch
+import time
 import numpy as np
 data_source = open('./data_source/data_source.txt', 'r')
 
@@ -72,7 +73,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 400
+dict_size = 200
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
@@ -115,8 +116,8 @@ sample_cnt = len(x_tlist)
 training_cnt = sample_cnt // 3 * 2
 validation_cnt = sample_cnt // 6
 batch_size = training_cnt
-epoch = 30
-learning_rate = 60
+epoch = 5
+learning_rate = 50
 theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
 
 
@@ -144,33 +145,49 @@ def check(output_file=None, output_prob=False):
             print(y_prob, y_tlist[idx][0].item(), file=output_file)
     print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt,
           file=output_file)
-    precision_rate, recall_rate = true_predict_cnt / predict_cnt, true_predict_cnt / item_cnt
+    precision_rate, recall_rate = 0, 0
+    if item_cnt != 0:
+        recall_rate = true_predict_cnt / item_cnt
+    if predict_cnt != 0:
+        precision_rate = true_predict_cnt / predict_cnt
     print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
           'F1_measure =', 2 * precision_rate * recall_rate / (precision_rate + recall_rate),
           file=output_file)
 
 
-print(theta)
-for __epoch__idx__ in range(epoch):
-    print("epoch :", __epoch__idx__)
-    li = torch.tensor(0, device=device, dtype=torch.float32)
-    for idx in range(training_cnt):
-        sigma = torch.tensor(1, device=device, dtype=torch.float32)
-        for i in range(2):
-            sigma += torch.exp(theta[i] @ x_tlist[idx])
-        sigma = torch.log(sigma)
-        if y_tlist[idx][0] == 2:
-            li += -sigma
-        else:
-            li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
-    li /= training_cnt
-    li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
-    print('li = ', li)
-    with torch.no_grad():
-        theta += learning_rate * theta.grad
-        theta.grad = None
+stop = 0
+while stop != 1:
     print(theta)
-    check()
+    for __epoch__idx__ in range(epoch):
+        print("epoch :", __epoch__idx__)
+        st_time = time.time()
+        li = torch.tensor(0, device=device, dtype=torch.float32)
+        for idx in range(training_cnt):
+            sigma = torch.tensor(1, device=device, dtype=torch.float32)
+            for i in range(2):
+                sigma += torch.exp(theta[i] @ x_tlist[idx])
+            sigma = torch.log(sigma)
+            if y_tlist[idx][0] == 2:
+                li += -sigma
+            else:
+                li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
+        li /= training_cnt
+        li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
+        print('li = ', li)
+        with torch.no_grad():
+            theta += learning_rate * theta.grad
+            theta.grad = None
+        print(theta)
+        print('used time = {:0} second(s)'.format(time.time() - st_time))
+        check()
+    print('want to stop? (y/n)')
+    if input() != 'y':
+        print('please input number of epoch:', '(now{:0})'.format(epoch))
+        epoch = eval(input())
+        print('please input learning rate', '(now{:0})'.format(learning_rate))
+        learning_rate = eval(input())
+    else:
+        stop = 1
 
 
 check_theta = open("check_theta.txt", "w")
