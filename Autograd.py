@@ -1,5 +1,6 @@
 import torch
 import time
+import os
 import numpy as np
 data_source = open('./data_source/data_source.txt', 'r')
 st_time = time.time()
@@ -108,7 +109,7 @@ for idx in range(1, len(data) - 1):
     x_tlist.append(torch.tensor(x, device=device, dtype=torch.float))
     y_tlist.append(torch.tensor(label, device=device, dtype=torch.int))
 
-print('Pre_processing data done! Used time = {:0} second(s)'.format(time.time() - st_time))
+print('Pre_processing data done! Used time = {0:} second(s)'.format(time.time() - st_time))
 #################################################################################
 
 if len(x_tlist) != len(y_tlist):
@@ -119,7 +120,7 @@ training_cnt = sample_cnt // 3 * 2
 validation_cnt = sample_cnt // 6
 batch_size = training_cnt
 epoch = 20
-learning_rate = 80
+learning_rate = 150
 print('Load theta? (y/n)')
 if input() == 'y':
     theta = torch.load('theta_save.pt')
@@ -143,12 +144,12 @@ def evaluate_model(output_file=None, output_prob=False):
                 y_predict = i
         if y_predict != 0:
             predict_cnt += 1
-        if y_tlist[idx][0].item() != 0:
+        if y_tlist[idx][2].item() != 0:
             item_cnt += 1
-            if y_predict == y_tlist[idx][0].item():
+            if y_predict == y_tlist[idx][2].item():
                 true_predict_cnt += 1
         if output_prob:
-            print(y_prob, y_tlist[idx][0].item(), file=output_file)
+            print(y_prob, y_tlist[idx][2].item(), file=output_file)
     print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt,
           file=output_file)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
@@ -161,9 +162,10 @@ def evaluate_model(output_file=None, output_prob=False):
     print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
           'F1_measure =', f1_measure,
           file=output_file)
+    return f1_measure
 
 
-stop = 0
+stop, epoch_tot = 0, 0
 while stop != 1:
     print(theta)
     for __epoch__idx__ in range(epoch):
@@ -175,10 +177,10 @@ while stop != 1:
             for i in range(2):
                 sigma += torch.exp(theta[i] @ x_tlist[idx])
             sigma = torch.log(sigma)
-            if y_tlist[idx][0] == 2:
+            if y_tlist[idx][2] == 2:
                 li += -sigma
             else:
-                li += theta[y_tlist[idx][0]] @ x_tlist[idx] - sigma
+                li += theta[y_tlist[idx][2]] @ x_tlist[idx] - sigma
         li /= training_cnt
         li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
         print('li = ', li)
@@ -186,13 +188,19 @@ while stop != 1:
             theta += learning_rate * theta.grad
             theta.grad = None
         print(theta)
-        print('Used time = {:0} second(s)'.format(time.time() - st_time))
-        evaluate_model()
+        print('Used time = {0:} second(s)'.format(time.time() - st_time))
+        f1_measure = evaluate_model()
+        if not os.path.exists('./theta_save/'):
+            os.mkdir('./theta_save/')
+        torch.save(theta,
+                   './theta_save/theta_save_tmp_{0:}_dic_size={1:}_F1={2:.4f}_li={3:.4f}.pt'
+                   .format(epoch_tot, dict_size, f1_measure, li.item()))
+        epoch_tot += 1
     print('Want to continue? (y/n)')
     if input() != 'n':
-        print('Please input number of epoch:', '(now : {:0})'.format(epoch))
+        print('Please input number of epoch:', '(now : {0:})'.format(epoch))
         epoch = eval(input())
-        print('Please input learning rate', '(now : {:0})'.format(learning_rate))
+        print('Please input learning rate', '(now : {0:})'.format(learning_rate))
         learning_rate = eval(input())
     else:
         stop = 1
@@ -201,4 +209,3 @@ while stop != 1:
 check_theta = open("check_theta.log", "w")
 print(theta, file=check_theta)
 evaluate_model(output_file=check_theta, output_prob=True)
-torch.save(theta, 'theta_save.pt')
