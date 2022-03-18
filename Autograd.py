@@ -2,6 +2,8 @@ import torch
 import time
 import numpy as np
 data_source = open('./data_source/data_source.txt', 'r')
+st_time = time.time()
+
 
 '''
 the 'data' list contains 'word's in the following format:
@@ -73,7 +75,7 @@ while idx < len(data):
 
 # making dictionary of commonly used words
 
-dict_size = 200
+dict_size = 600
 cnt = dict()
 dic = dict()
 cnt_ordered = list()
@@ -106,7 +108,7 @@ for idx in range(1, len(data) - 1):
     x_tlist.append(torch.tensor(x, device=device, dtype=torch.float))
     y_tlist.append(torch.tensor(label, device=device, dtype=torch.int))
 
-print('Pre_processing data done!')
+print('Pre_processing data done! Used time = {:0} second(s)'.format(time.time() - st_time))
 #################################################################################
 
 if len(x_tlist) != len(y_tlist):
@@ -116,12 +118,16 @@ sample_cnt = len(x_tlist)
 training_cnt = sample_cnt // 3 * 2
 validation_cnt = sample_cnt // 6
 batch_size = training_cnt
-epoch = 5
-learning_rate = 50
-theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
+epoch = 20
+learning_rate = 80
+print('Load theta? (y/n)')
+if input() == 'y':
+    theta = torch.load('theta_save.pt')
+else:
+    theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
 
 
-def check(output_file=None, output_prob=False):
+def evaluate_model(output_file=None, output_prob=False):
     item_cnt, predict_cnt, true_predict_cnt = 0, 0, 0
     for idx in range(training_cnt, training_cnt + validation_cnt):
         y_prob = [0] * 3
@@ -181,7 +187,7 @@ while stop != 1:
             theta.grad = None
         print(theta)
         print('Used time = {:0} second(s)'.format(time.time() - st_time))
-        check()
+        evaluate_model()
     print('Want to continue? (y/n)')
     if input() != 'n':
         print('Please input number of epoch:', '(now : {:0})'.format(epoch))
@@ -192,6 +198,7 @@ while stop != 1:
         stop = 1
 
 
-check_theta = open("check_theta.txt", "w")
+check_theta = open("check_theta.log", "w")
 print(theta, file=check_theta)
-check(output_file=check_theta, output_prob=True)
+evaluate_model(output_file=check_theta, output_prob=True)
+torch.save(theta, 'theta_save.pt')

@@ -35,7 +35,7 @@ print(torch.exp(torch.tensor(1)))
 '''
 
 st = time.time()
-a = torch.randn(5000, dtype=torch.float32)
+a = torch.randn(1000000, dtype=torch.float32)
 a = a.cuda()
 for i in range(10000):
     a = torch.sqrt(a * a)
