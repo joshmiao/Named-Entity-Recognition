@@ -36,12 +36,9 @@ print(torch.exp(torch.tensor(1)))
 '''
 
 st = time.time()
-a = torch.randn(10, 10, dtype=torch.float32)
+a = torch.randn(10000, 10000, dtype=torch.float32)
+a.cuda()
 for i in range(10000):
     a = torch.sqrt(a * a)
 print(a - a)
 print(time.time() - st, file=None)
-if not os.path.exists('./theta_save/'):
-    os.mkdir('./theta_save/')
-torch.save(a,
-           './theta_save/theta_save_tmp.pt')

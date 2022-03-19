@@ -116,12 +116,13 @@ if len(x_tlist) != len(y_tlist):
     print('Data error!')
 
 sample_cnt = len(x_tlist)
-training_cnt = sample_cnt // 3 * 2
-validation_cnt = sample_cnt // 6
+training_cnt, validation_cnt = sample_cnt // 3 * 2, sample_cnt // 6
 testing_cnt = sample_cnt - training_cnt - validation_cnt
 batch_size = training_cnt
-epoch = 3
-learning_rate = 60
+epoch, learning_rate = 3, 60
+theta_num = 1
+
+
 print('Load theta? (y/n)')
 if input() == 'y':
     theta = torch.load('theta_save.pt')
@@ -145,13 +146,13 @@ def evaluate_model(output_file=None, output_prob=False):
                 y_predict = i
         if y_predict != 0:
             predict_cnt += 1
-        if y_tlist[idx][2].item() != 0:
+        if y_tlist[idx][theta_num].item() != 0:
             item_cnt += 1
-            if y_predict == y_tlist[idx][2].item():
+            if y_predict == y_tlist[idx][theta_num].item():
                 true_predict_cnt += 1
         if output_prob:
-            print(y_prob, y_tlist[idx][2].item(), file=output_file)
-    print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt,
+            print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
+    print('item_cnt =', item_cnt, '| predict_cnt =', predict_cnt, '| true_predict_cnt =', true_predict_cnt,
           file=output_file)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
     if item_cnt != 0:
@@ -160,8 +161,8 @@ def evaluate_model(output_file=None, output_prob=False):
         precision_rate = true_predict_cnt / predict_cnt
     if precision_rate + recall_rate != 0:
         f1_measure = 2 * precision_rate * recall_rate / (precision_rate + recall_rate)
-    print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
-          'F1_measure =', f1_measure,
+    print('precision_rate =', precision_rate, '| recall_rate =', recall_rate,
+          '| F1_measure =', f1_measure,
           file=output_file)
     return f1_measure
 
@@ -173,29 +174,32 @@ while stop != 1:
         print("epoch :", __epoch__idx__)
         st_time = time.time()
         li = torch.tensor(0, device=device, dtype=torch.float32)
+
         for idx in range(training_cnt):
             sigma = torch.tensor(1, device=device, dtype=torch.float32)
             for i in range(2):
                 sigma += torch.exp(theta[i] @ x_tlist[idx])
             sigma = torch.log(sigma)
-            if y_tlist[idx][2] == 2:
-                li += -sigma
-            else:
-                li += theta[y_tlist[idx][2]] @ x_tlist[idx] - sigma
+            li -= sigma
+            if y_tlist[idx][theta_num] != 2:
+                li += theta[y_tlist[idx][theta_num]] @ x_tlist[idx]
+
         li /= training_cnt
-        li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
-        print('li = ', li)
+        li.backward(gradient=torch.tensor(1, dtype=torch.float32, device=device))
         with torch.no_grad():
             theta += learning_rate * theta.grad
             theta.grad = None
+
+        print('li = ', li)
         print(theta)
         print('Used time = {0:} second(s)'.format(time.time() - st_time))
         f1_measure = evaluate_model()
+        print('-------------------------------------------------------------------------------------------------------')
         if not os.path.exists('./theta_save/'):
             os.mkdir('./theta_save/')
         torch.save(theta,
-                   './theta_save/theta2_save_tmp_{0:}_dic_size={1:}_F1={2:.4f}_li={3:.4f}.pt'
-                   .format(epoch_tot, dict_size, f1_measure, li.item()))
+                   './theta_save/theta{0:}_save_tmp_{1:}_dic_size={2:}_F1={3:.4f}_li={4:.4f}.pt'
+                   .format(theta_num, epoch_tot, dict_size, f1_measure, li.item()))
         epoch_tot += 1
     print('Want to continue? (y/n)')
     if input() != 'n':
