@@ -119,19 +119,15 @@ sample_cnt = len(x_tlist)
 training_cnt = sample_cnt // 3 * 2
 validation_cnt = sample_cnt // 6
 testing_cnt = sample_cnt - training_cnt - validation_cnt
-batch_size = training_cnt
-epoch = 3
-learning_rate = 60
-print('Load theta? (y/n)')
-if input() == 'y':
-    theta = torch.load('theta_save.pt')
-else:
-    theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
+print('Input theta name :')
+theta = torch.load(input())
+print('Input theta num :')
+theta_num = eval(input())
 
 
 def evaluate_model(output_file=None, output_prob=False):
     item_cnt, predict_cnt, true_predict_cnt = 0, 0, 0
-    for idx in range(training_cnt, training_cnt + validation_cnt):
+    for idx in range(training_cnt + validation_cnt, sample_cnt):
         y_prob = [0] * 3
         sigma = 0
         for i in range(3):
@@ -145,14 +141,15 @@ def evaluate_model(output_file=None, output_prob=False):
                 y_predict = i
         if y_predict != 0:
             predict_cnt += 1
-        if y_tlist[idx][2].item() != 0:
+        if y_tlist[idx][theta_num].item() != 0:
             item_cnt += 1
-            if y_predict == y_tlist[idx][2].item():
+            if y_predict == y_tlist[idx][theta_num].item():
                 true_predict_cnt += 1
         if output_prob:
-            print(y_prob, y_tlist[idx][2].item(), file=output_file)
+            print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
     print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt,
           file=output_file)
+    print('item_cnt =', item_cnt, 'predict_cnt =', predict_cnt, 'true_predict_cnt =', true_predict_cnt)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
     if item_cnt != 0:
         recall_rate = true_predict_cnt / item_cnt
@@ -163,50 +160,27 @@ def evaluate_model(output_file=None, output_prob=False):
     print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
           'F1_measure =', f1_measure,
           file=output_file)
+    print('precision_rate =', precision_rate, 'recall_rate =', recall_rate,
+          'F1_measure =', f1_measure)
     return f1_measure
 
 
-stop, epoch_tot = 0, 0
-while stop != 1:
-    print(theta)
-    for __epoch__idx__ in range(epoch):
-        print("epoch :", __epoch__idx__)
-        st_time = time.time()
-        li = torch.tensor(0, device=device, dtype=torch.float32)
-        for idx in range(training_cnt):
-            sigma = torch.tensor(1, device=device, dtype=torch.float32)
-            for i in range(2):
-                sigma += torch.exp(theta[i] @ x_tlist[idx])
-            sigma = torch.log(sigma)
-            if y_tlist[idx][2] == 2:
-                li += -sigma
-            else:
-                li += theta[y_tlist[idx][2]] @ x_tlist[idx] - sigma
-        li /= training_cnt
-        li.backward(retain_graph=True, gradient=torch.tensor(1, dtype=torch.float32, device=device))
-        print('li = ', li)
-        with torch.no_grad():
-            theta += learning_rate * theta.grad
-            theta.grad = None
-        print(theta)
-        print('Used time = {0:} second(s)'.format(time.time() - st_time))
-        f1_measure = evaluate_model()
-        if not os.path.exists('./theta_save/'):
-            os.mkdir('./theta_save/')
-        torch.save(theta,
-                   './theta_save/theta2_save_tmp_{0:}_dic_size={1:}_F1={2:.4f}_li={3:.4f}.pt'
-                   .format(epoch_tot, dict_size, f1_measure, li.item()))
-        epoch_tot += 1
-    print('Want to continue? (y/n)')
+testing_num = 0
+testing_results = open("testing_results{0:}.log".format(testing_num), "w")
+print(theta, file=testing_results)
+evaluate_model(output_file=testing_results, output_prob=True)
+
+stop = 0
+while stop == 0:
+    print('continue?(y/n)')
     if input() != 'n':
-        print('Please input number of epoch:', '(now : {0:})'.format(epoch))
-        epoch = eval(input())
-        print('Please input learning rate', '(now : {0:})'.format(learning_rate))
-        learning_rate = eval(input())
+        testing_num += 1
+        print('Input theta name :')
+        theta = torch.load(input())
+        print('Input theta num :')
+        theta_num = eval(input())
+        testing_results = open("testing_results{0:}.log".format(testing_num), "w")
+        print(theta, file=testing_results)
+        evaluate_model(output_file=testing_results, output_prob=True)
     else:
         stop = 1
-
-
-check_theta = open("check_theta.log", "w")
-print(theta, file=check_theta)
-evaluate_model(output_file=check_theta, output_prob=True)
