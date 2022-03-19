@@ -120,14 +120,17 @@ training_cnt, validation_cnt = sample_cnt // 3 * 2, sample_cnt // 6
 testing_cnt = sample_cnt - training_cnt - validation_cnt
 batch_size = training_cnt
 epoch, learning_rate = 3, 60
-theta_num = 1
-
 
 print('Load theta? (y/n)')
 if input() == 'y':
     theta = torch.load('theta_save.pt')
 else:
     theta = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
+
+theta_num = -1
+while theta_num not in [1, 2, 3]:
+    print('Input theta to train (1/2/3): ')
+    theta_num = eval(input())
 
 
 def evaluate_model(output_file=None, output_prob=False):
