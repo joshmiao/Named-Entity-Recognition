@@ -12,7 +12,7 @@ def train(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, learning_rate, d
     print(theta)
     print('-------------------------------------------------------------------------------------------------------')
     for __epoch__idx__ in range(epoch):
-        print("epoch{0:} for theta{1:} ".format(__epoch__idx__, theta_num), end='')
+        print("epoch {0:} for theta {1:} ".format(__epoch__idx__, theta_num), end='')
         st_time = time.time()
         # using softmax model to optimize theta #
         li = torch.tensor(0, device=device, dtype=torch.float32)

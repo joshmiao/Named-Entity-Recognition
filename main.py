@@ -36,11 +36,11 @@ epoch, learning_rate0, learning_rate1, learning_rate2 = 0, 0, 0, 0
 while stop != 1:
     print('Please input number of epoch :', '(now : {0:})'.format(epoch))
     epoch = eval(input())
-    print('Please input learning rate0 :', '(now : {0:})'.format(learning_rate0))
+    print('Please input learning rate for theta 0 :', '(now : {0:})'.format(learning_rate0))
     learning_rate0 = eval(input())
-    print('Please input learning rate1 :', '(now : {0:})'.format(learning_rate1))
+    print('Please input learning rate for theta 1 :', '(now : {0:})'.format(learning_rate1))
     learning_rate1 = eval(input())
-    print('Please input learning rate2 :', '(now : {0:})'.format(learning_rate2))
+    print('Please input learning rate for theta 2 :', '(now : {0:})'.format(learning_rate2))
     learning_rate2 = eval(input())
     autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta0, theta_num=0, dict_size=dict_size,
                             epoch=epoch, learning_rate=learning_rate0, device=device)
