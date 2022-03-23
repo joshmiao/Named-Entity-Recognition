@@ -25,7 +25,7 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
                 true_predict_cnt += 1
         if output_prob:
             print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
-    print('Evaluation For theta {0:} (Used time = {0:} second(s)) : '.format(theta_num, time.time() - st_time),
+    print('Evaluation For theta {0:} (Used time = {1:} second(s)) : '.format(theta_num, time.time() - st_time),
           file=output_file)
     print('item_cnt =', item_cnt, '| predict_cnt =', predict_cnt, '| true_predict_cnt =', true_predict_cnt,
           file=output_file)
