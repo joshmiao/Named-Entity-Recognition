@@ -34,7 +34,7 @@ torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor(1, dtype
 print(a.grad)
 print(torch.exp(torch.tensor(1)))
 '''
-
+'''
 st = time.time()
 a = torch.randn(10000, 10000, dtype=torch.float32)
 a.cuda()
@@ -42,3 +42,6 @@ for i in range(10000):
     a = torch.sqrt(a * a)
 print(a - a)
 print(time.time() - st, file=None)
+'''
+dic = {1 : 2, 2 : 6, 'a' : 'b'}
+print(len(dic))
