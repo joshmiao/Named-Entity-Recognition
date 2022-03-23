@@ -32,7 +32,7 @@ def train(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, learning_rate, d
 
         print('(Used time = {0:} second(s)) : '.format(time.time() - st_time))
         print('li = ', li)
-        # print(theta)
+        print(theta)
         precision_rate, recall_rate, f1_measure = model_evaluate.evaluate_model(x_tlist=x_tlist, y_tlist=y_tlist,
                                                                                 start=training_cnt, end=len(x_tlist),
                                                                                 theta=theta, theta_num=theta_num)
