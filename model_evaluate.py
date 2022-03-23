@@ -1,7 +1,9 @@
 import torch
+import time
 
 
 def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=None, output_prob=False):
+    st_time = time.time()
     item_cnt, predict_cnt, true_predict_cnt = 0, 0, 0
     for idx in range(start, end):
         y_prob = [0] * 3
@@ -23,6 +25,8 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
                 true_predict_cnt += 1
         if output_prob:
             print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
+    print('Evaluation For theta {0:} (Used time = {0:} second(s)) : '.format(theta_num, time.time() - st_time),
+          file=output_file)
     print('item_cnt =', item_cnt, '| predict_cnt =', predict_cnt, '| true_predict_cnt =', true_predict_cnt,
           file=output_file)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
@@ -36,26 +40,3 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
           '| F1_measure =', f1_measure,
           file=output_file)
     return precision_rate, recall_rate, f1_measure
-
-
-'''
-testing_num = 0
-testing_results = open("testing_results{0:}.log".format(testing_num), "w")
-print(theta, file=testing_results)
-evaluate_model(output_file=testing_results, output_prob=True)
-
-stop = 0
-while stop == 0:
-    print('continue?(y/n)')
-    if input() != 'n':
-        testing_num += 1
-        print('Input theta name :')
-        theta = torch.load(input())
-        print('Input theta num :')
-        theta_num = eval(input())
-        testing_results = open("testing_results{0:}.log".format(testing_num), "w")
-        print(theta, file=testing_results)
-        evaluate_model(output_file=testing_results, output_prob=True)
-    else:
-        stop = 1
-'''

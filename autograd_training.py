@@ -8,11 +8,11 @@ def train(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, learning_rate, d
     if len(x_tlist) != len(y_tlist):
         print('Data error!')
     training_cnt = len(x_tlist) // 5 * 4
-    print('Initial theta : ')
+    print('Initial theta {:0}: '.format(theta_num))
     print(theta)
     print('-------------------------------------------------------------------------------------------------------')
     for __epoch__idx__ in range(epoch):
-        print("epoch :", __epoch__idx__)
+        print("epoch{0:} for theta{1:} ".format(__epoch__idx__, theta_num), end='')
         st_time = time.time()
         # using softmax model to optimize theta #
         li = torch.tensor(0, device=device, dtype=torch.float32)
@@ -29,16 +29,16 @@ def train(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, learning_rate, d
         with torch.no_grad():
             theta += learning_rate * theta.grad
             theta.grad = None
-        # using softmax model to optimize theta #
+
+        print('(Used time = {0:} second(s)) : '.format(time.time() - st_time))
         print('li = ', li)
-        print(theta)
-        print('Used time = {0:} second(s)'.format(time.time() - st_time))
+        # print(theta)
         precision_rate, recall_rate, f1_measure = model_evaluate.evaluate_model(x_tlist=x_tlist, y_tlist=y_tlist,
                                                                                 start=training_cnt, end=len(x_tlist),
                                                                                 theta=theta, theta_num=theta_num)
         print('---------------------------------------------------------------------------------------------------')
-        if not os.path.exists('./theta{}_save/'.format(theta_num)):
-            os.mkdir('./theta{}_save/'.format(theta_num))
+        if not os.path.exists('./theta{0:}_save/'.format(theta_num)):
+            os.mkdir('./theta{0:}_save/'.format(theta_num))
         torch.save(theta,
-                   './theta_save/theta{0:}_save_tmp_{1:}_dic_size={2:}_F1={3:.4f}_li={4:.4f}.pt'
-                   .format(theta_num, __epoch__idx__, dict_size, f1_measure, li.item()))
+                   './theta{0:}_save/theta{1:}_save_tmp_{2:}_dic_size={3:}_F1={4:.4f}_li={5:.4f}.pt'
+                   .format(theta_num, theta_num, __epoch__idx__, dict_size, f1_measure, li.item()))
