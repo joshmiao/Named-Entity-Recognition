@@ -31,19 +31,23 @@ else:
     theta2 = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32, requires_grad=True)
 
 stop, epoch_tot = 0, 0
-epoch, learning_rate = 0, 0
+epoch, learning_rate0, learning_rate1, learning_rate2 = 0, 0, 0, 0
 
 while stop != 1:
     print('Please input number of epoch :', '(now : {0:})'.format(epoch))
     epoch = eval(input())
-    print('Please input learning rate :', '(now : {0:})'.format(learning_rate))
-    learning_rate = eval(input())
+    print('Please input learning rate0 :', '(now : {0:})'.format(learning_rate0))
+    learning_rate0 = eval(input())
+    print('Please input learning rate1 :', '(now : {0:})'.format(learning_rate1))
+    learning_rate1 = eval(input())
+    print('Please input learning rate2 :', '(now : {0:})'.format(learning_rate2))
+    learning_rate2 = eval(input())
     autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta0, theta_num=0, dict_size=dict_size,
-                            epoch=epoch, learning_rate=learning_rate, device=device)
+                            epoch=epoch, learning_rate=learning_rate0, device=device)
     autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta1, theta_num=1, dict_size=dict_size,
-                            epoch=epoch, learning_rate=learning_rate, device=device)
+                            epoch=epoch, learning_rate=learning_rate1, device=device)
     autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta2, theta_num=2, dict_size=dict_size,
-                            epoch=epoch, learning_rate=learning_rate, device=device)
+                            epoch=epoch, learning_rate=learning_rate2, device=device)
     print('Want to continue? (y/n)')
     if input() == 'n':
         stop = 1
