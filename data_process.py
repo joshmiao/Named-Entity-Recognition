@@ -76,6 +76,7 @@ def preprocess_data(data_dir, output_file=None):
 def make_dictionary(dict_size, data):
     """
     making dictionary of commonly used words
+    return a dictionary mapping words to its id
     """
     cnt = dict()
     dic = dict()
@@ -97,6 +98,8 @@ def make_dictionary(dict_size, data):
 def create_tensor_list(dic, data, device):
     """
     creating tensor list
+    x_tlist is a one-hot encoding list of tensors
+    y_tlist is the corresponding three labels in {0, 1, 2}
     """
     x_tlist = list()
     y_tlist = list()

@@ -1,11 +1,10 @@
 import torch
 import time
-import os
 import data_process
 import model_evaluate
-import autograd_training
+import training
 
-dict_size = 600
+dict_size = 650
 data_dir = './data_source/data_source.txt'
 device = torch.device('cpu')
 
@@ -42,11 +41,11 @@ while stop != 1:
     learning_rate1 = eval(input())
     print('Please input learning rate for theta 2 :', '(now : {0:})'.format(learning_rate2))
     learning_rate2 = eval(input())
-    autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta0, theta_num=0, dict_size=dict_size,
+    training.autograd_train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta0, theta_num=0, dict_size=dict_size,
                             epoch=epoch, learning_rate=learning_rate0, device=device)
-    autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta1, theta_num=1, dict_size=dict_size,
+    training.autograd_train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta1, theta_num=1, dict_size=dict_size,
                             epoch=epoch, learning_rate=learning_rate1, device=device)
-    autograd_training.train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta2, theta_num=2, dict_size=dict_size,
+    training.autograd_train(x_tlist=x_tlist, y_tlist=y_tlist, theta=theta2, theta_num=2, dict_size=dict_size,
                             epoch=epoch, learning_rate=learning_rate2, device=device)
     print('Want to continue? (y/n)')
     if input() == 'n':
