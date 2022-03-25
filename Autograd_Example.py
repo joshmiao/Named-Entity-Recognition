@@ -1,6 +1,7 @@
 import torch
 import time
 import os
+import math
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 '''
@@ -43,5 +44,15 @@ for i in range(10000):
 print(a - a)
 print(time.time() - st, file=None)
 '''
-dic = {1 : 2, 2 : 6, 'a' : 'b'}
-print(len(dic))
+st = time.time()
+summ = 0
+s1 = torch.tensor(10)
+s2 = 10
+for i in range(1000000):
+    summ += 1 / s1
+print(time.time() - st)
+summ = 0
+st = time.time()
+for i in range(1000000):
+    summ += 1 / s2
+print(time.time() - st)

@@ -1,17 +1,24 @@
 import torch
 import time
+import math
 
 
 def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=None, output_prob=False):
     st_time = time.time()
     item_cnt, predict_cnt, true_predict_cnt = 0, 0, 0
+    loss = 0
     for idx in range(start, end):
-        y_prob = [0] * 3
-        sigma = 0
-        for i in range(3):
+        y_prob = []
+        sigma = 1
+        for i in range(2):
             sigma += torch.exp(theta[i] @ x_tlist[idx]).item()
-        for i in range(3):
-            y_prob[i] = torch.exp(theta[i] @ x_tlist[idx]).item() / sigma
+        for i in range(2):
+            y_prob.append(torch.exp(theta[i] @ x_tlist[idx]).item() / sigma)
+        y_prob.append(1 / sigma)
+        if loss == math.nan or y_prob[y_tlist[idx][theta_num].item()] == 0:
+            loss = math.nan
+        else:
+            loss -= math.log(y_prob[y_tlist[idx][theta_num].item()])
         y_predict, max_prob = 0, 0
         for i in range(3):
             if y_prob[i] > max_prob:
@@ -27,6 +34,7 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
             print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
     print('Evaluation For theta {0:} (Used time = {1:} second(s)) : '.format(theta_num, time.time() - st_time),
           file=output_file)
+    print('loss =', loss / (end - start))
     print('item_cnt =', item_cnt, '| predict_cnt =', predict_cnt, '| true_predict_cnt =', true_predict_cnt,
           file=output_file)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
@@ -39,4 +47,4 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
     print('precision_rate =', precision_rate, '| recall_rate =', recall_rate,
           '| F1_measure =', f1_measure,
           file=output_file)
-    return precision_rate, recall_rate, f1_measure
+    return loss, precision_rate, recall_rate, f1_measure
