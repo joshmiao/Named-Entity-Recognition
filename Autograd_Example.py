@@ -35,24 +35,37 @@ torch.autograd.backward(y, retain_graph=True, grad_tensors=torch.tensor(1, dtype
 print(a.grad)
 print(torch.exp(torch.tensor(1)))
 '''
-'''
-st = time.time()
-a = torch.randn(10000, 10000, dtype=torch.float32)
-a.cuda()
-for i in range(10000):
-    a = torch.sqrt(a * a)
-print(a - a)
-print(time.time() - st, file=None)
-'''
-st = time.time()
-summ = 0
-s1 = torch.tensor(10)
-s2 = 10
-for i in range(1000000):
-    summ += 1 / s1
-print(time.time() - st)
-summ = 0
+
+a = torch.tensor(3, dtype=torch.float32)
+ans = 0
 st = time.time()
 for i in range(1000000):
-    summ += 1 / s2
+    ans += a * a
 print(time.time() - st)
+'''
+gpu = torch.device('cuda:0')
+cpu = torch.device('cpu')
+ans = 0
+t1 = torch.tensor(2.2, dtype=torch.float32, device=gpu)
+st = time.time()
+for i in range(100000):
+    ans += torch.sqrt(t1 * t1)
+print(time.time() - st)
+t2 = torch.tensor(2.2, dtype=torch.float64, device=gpu)
+st = time.time()
+for i in range(100000):
+    ans += torch.sqrt(t2 * t2)
+print(time.time() - st)
+t3 = torch.tensor(2.2, dtype=torch.float32, device=cpu)
+st = time.time()
+for i in range(100000):
+    ans += torch.sqrt(t3 * t3)
+print(time.time() - st)
+t4 = torch.tensor(2.2, dtype=torch.float64, device=cpu)
+st = time.time()
+for i in range(100000):
+    ans += torch.sqrt(t4 * t4)
+print(time.time() - st)
+if t3 * t3 > 4:
+    print(1)
+'''

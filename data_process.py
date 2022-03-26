@@ -21,7 +21,10 @@ def preprocess_data(data_dir, output_file=None):
         line_data = lines.split('  ')
         for word in line_data:
             if len(word.split('/')) == 2:
-                data.append(word.split('/'))
+                if word.split('/')[0].find('199801') == -1:
+                    data.append(word.split('/'))
+                else:
+                    data.append(['#开头#', 'm'])
 
     for word in data:
         mark = []
@@ -44,10 +47,13 @@ def preprocess_data(data_dir, output_file=None):
             end_id = idx + 1
             while data[end_id][1].find(']') == -1:
                 end_id += 1
+            data[idx][0] = data[idx][0].split('[')[1]
+            # the data source can be error
+            if end_id - idx > 10:
+                continue
             # process name and type
             ty = data[end_id][1].split(']')[1]
             data[end_id][1] = data[end_id][1].split(']')[0]
-            data[idx][0] = data[idx][0].split('[')[1]
             # marking Begin item
             if ty == 'nt':
                 data[idx][2] = 1
@@ -106,11 +112,13 @@ def create_tensor_list(dic, data, device):
     dict_size = len(dic)
     print('Total', len(data), 'words')
     for idx in range(1, len(data) - 1):
+        if data[idx][0] == '#开头#' or data[idx + 1][0] == '#开头#':
+            continue
         x = [0] * (dict_size + 1) * 3
         label = [data[idx][2], data[idx][3], data[idx][4]]
         x[dic.get(data[idx - 1][0], 0)] = 1
         x[dic.get(data[idx][0], 0) + (dict_size + 1)] = 1
         x[dic.get(data[idx + 1][0], 0) + 2 * (dict_size + 1)] = 1
-        x_tlist.append(torch.tensor(x, device=device, dtype=torch.float))
+        x_tlist.append(torch.tensor(x, device=device, dtype=torch.float32))
         y_tlist.append(torch.tensor(label, device=device, dtype=torch.int))
     return x_tlist, y_tlist

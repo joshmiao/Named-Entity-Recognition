@@ -1,24 +1,20 @@
 import torch
 import time
-import math
 
 
-def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=None, output_prob=False):
+def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, device, output_file=None, output_prob=False):
     st_time = time.time()
     item_cnt, predict_cnt, true_predict_cnt = 0, 0, 0
-    loss = 0
+    loss = torch.tensor(0, dtype=torch.float32, device=device)
     for idx in range(start, end):
         y_prob = []
-        sigma = 1
+        sigma = torch.tensor(1, dtype=torch.float32, device=device)
         for i in range(2):
-            sigma += torch.exp(theta[i] @ x_tlist[idx]).item()
+            sigma += torch.exp(theta[i] @ x_tlist[idx])
         for i in range(2):
-            y_prob.append(torch.exp(theta[i] @ x_tlist[idx]).item() / sigma)
+            y_prob.append(torch.exp(theta[i] @ x_tlist[idx]) / sigma)
         y_prob.append(1 / sigma)
-        if loss == math.nan or y_prob[y_tlist[idx][theta_num].item()] == 0:
-            loss = math.nan
-        else:
-            loss -= math.log(y_prob[y_tlist[idx][theta_num].item()])
+        loss -= torch.log(y_prob[y_tlist[idx][theta_num]])
         y_predict, max_prob = 0, 0
         for i in range(3):
             if y_prob[i] > max_prob:
@@ -34,7 +30,8 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, output_file=N
             print(y_prob, y_tlist[idx][theta_num].item(), file=output_file)
     print('Evaluation For theta {0:} (Used time = {1:} second(s)) : '.format(theta_num, time.time() - st_time),
           file=output_file)
-    print('loss =', loss / (end - start))
+    loss /= (end - start)
+    print('loss =', loss.item())
     print('item_cnt =', item_cnt, '| predict_cnt =', predict_cnt, '| true_predict_cnt =', true_predict_cnt,
           file=output_file)
     precision_rate, recall_rate, f1_measure = 0, 0, 0
