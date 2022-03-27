@@ -44,4 +44,4 @@ def evaluate_model(x_tlist, y_tlist, start, end, theta, theta_num, device, outpu
     print('precision_rate =', precision_rate, '| recall_rate =', recall_rate,
           '| F1_measure =', f1_measure,
           file=output_file)
-    return loss, precision_rate, recall_rate, f1_measure
+    return loss.item(), precision_rate, recall_rate, f1_measure

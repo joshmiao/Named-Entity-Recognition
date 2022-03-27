@@ -31,7 +31,6 @@ def auto_grad_training(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, lea
         loss.backward(gradient=torch.tensor(1, dtype=torch.float32, device=device))
         with torch.no_grad():
             theta -= learning_rate * theta.grad
-            print(theta.grad)
             theta.grad = None
         print('(Used time = {0:} second(s)) : '.format(time.time() - st_time))
         print('training loss =', loss.item())
@@ -83,10 +82,10 @@ def manual_grad_training(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, l
         # using softmax model to give probability and using entropy loss to optimize theta #
         # noting that the last dimension of theta is zero #
         loss = torch.tensor(0, device=device, dtype=torch.float32)
-        s = []
         grad = torch.zeros(3, 3 * (dict_size + 1), device=device, dtype=torch.float32)
         for idx in range(training_cnt):
             sigma = torch.tensor(1, device=device, dtype=torch.float32)
+            s = []
             for i in range(2):
                 s.append(theta[i] @ x_tlist[idx])
                 sigma += torch.exp(s[i])
@@ -97,13 +96,12 @@ def manual_grad_training(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, l
                 if i != y_tlist[idx][theta_num]:
                     grad[i] += torch.exp(s[i]) / sigma * x_tlist[idx]
                 else:
-                    grad[i] += (torch.exp(s[i]) / sigma - torch.tensor(1, dtype=torch.float32, device=device)) * x_tlist[idx]
+                    grad[i] += (torch.exp(s[i]) / sigma - 1) * x_tlist[idx]
 
         loss /= training_cnt
         grad /= training_cnt
         with torch.no_grad():
             theta -= learning_rate * grad
-            print(grad)
         print('(Used time = {0:} second(s)) : '.format(time.time() - st_time))
         print('training loss =', loss.item())
         print(theta)
