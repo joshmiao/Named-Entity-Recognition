@@ -23,14 +23,52 @@
 不妨设输入和输出分别为$X,Y$，其中$X$为上文提到的大小为$3*651$的向量，$Y$为一个在$\left \{ 0, 1, 2 \right \}$中取值的整数（通过构建三个这样的模型来分别预测机构名、地名、人名的标签）。
 $$ P(Y=0|X)=\phi_0,P(Y=1|X)=\phi_1,P(Y=2|X)=\phi_2$$
 由`Softmax`模型相关理论可以有如下定义：
-$$\phi_0=\frac{e^{\theta_0^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}},\phi_1=\frac{e^{\theta_1^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}},
-\phi_2=\frac{e^{\theta_2^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}}(其中\theta_2=0)$$
-
+$$
+\phi_0=\frac{e^{\theta_0^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}},\phi_1=\frac{e^{\theta_1^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}},
+\phi_2=\frac{e^{\theta_2^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}}(其中\theta_2=0)
+$$
+这里，$\theta_0,\theta_1,\theta_2$为需要优化的参数，对数似然函数为：
+$$l(\theta)=\Sigma_{l=0}^{m}\ln\frac{e^{\theta_{Y(l)}^TX}}{\Sigma_{i=0}^{2} e^{\theta_i^TX}}(其中Y(l)为第l个样本的输出)$$
+取`loss=-l`进行梯度下降进行参数优化，即可得到最大似然估计下的参数值。
 ### 3.3 通过梯度下降进行参数优化
 #### 3.3.1 自动求导
+自动求导即通过样本求出对应的`loss`值，并调用方法`loss.backword()`即可得到$\theta$的梯度值`theta.grad`，根据学习率`learning_rate`进行梯度下降`theta -= learning_rate * theta.grad`即可。
 #### 3.3.2 手动求导
-
-## 4.运行结果及分析
-
-## 5.总结
+需要通过数学推导直接得出梯度值`grad`的表达式，即$grad=\frac{\mathrm{d}l(\theta)}{\mathrm{d}\theta}$，不妨设$z_i=\theta_i^TX$，即有$\phi_i=\frac{e^{z_i}}{\Sigma_{k=0}^{2} e^{z_k}}$，则由链式法则：
+$$
+\frac{\partial l(\phi_0,\phi_1,...,\phi_m)}{\partial z_i}=\frac{\partial l}{\partial \phi_0}\frac{\partial \phi_0}{\partial z_i}+\frac{\partial l}{\partial \phi_1}\frac{\partial \phi_1}{\partial z_i}+...+\frac{\partial l}{\partial \phi_m}\frac{\partial \phi_m}{\partial z_i}$$
+其中：
+$$
+\left\{
+  \begin{array}{}  
+             \frac{\partial l}{\partial \phi_i}=-\frac{1}{\phi_i}, Y=i\\  
+             \frac{\partial l}{\partial \phi_i}=0, Y\neq i\\  
+  \end{array} 
+\right.
+$$
+对于$\frac{\partial \phi_k}{\partial z_i}$则需要分情况讨论。当$k\neq i$时：
+$$
+\phi_k=\frac{e^{z_k}}{\Sigma_{j=0}^{2} e^{z_j}}\\
+\frac{\partial \phi_k}{\partial z_i}=\frac{-e^{z_k}e^{z_i}}{(\Sigma_{j=0}^{2} e^{z_j})^2}=- \phi_ k\phi_i
+$$
+当$k=i$时：
+$$
+\phi_k=\frac{e^{z_k}}{\Sigma_{j=0}^{2} e^{z_j}}\\
+\frac{\partial \phi_k}{\partial z_i}=\frac{e^{z_i}(\Sigma_{j=0}^{2} e^{z_j})-e^{z_i}e^{z_i}}{(\Sigma_{j=0}^{2} e^{z_j})^2}=\phi_i(1-\phi_i)
+$$
+又易得到：
+$$\frac{\partial z_i}{\partial \theta_i}=X$$
+再由链式法则可得：
+$$\frac{\partial l}{\partial \theta_i}=(\phi_i-[Y=i])X(其中[Y=i]为示性函数)$$
+得到`grad`后同自动求导，根据学习率`learning_rate`进行梯度下降`theta -= learning_rate * theta.grad`即可。
+## 4. 运行结果及分析
+### 4.1 说明
+`loss`值在程序中除以了样本总数`trainint_cnt`以归一化处理。根据经验，设置学习率`learning_rate = 70`，循环次数`epoch = 40`。每轮训练完成后将统计模型在验证集`validation_set`中的`f1_measure`值。其定义为`f1_measure = 2 * precision_rate * recall_rate / (precision_rate + recall_rate)`，精确率`precision_rate`定义为识别正确的样本数占总识别样本数的百分比，召回率`recall_rate`定义为识别正确的样本数占总样本数的百分比。可以认为`f1_measure`给出了模型好坏的参考标准，越接近$1$代表模型越好。
+### 4.2 自动求导`loss`值以及`f1_measure`变化图
+1. `loss`值
+2. `f1_measure`值
+### 4.2 手动求导`loss`值以及`f1_measure`变化图
+1. `loss`值
+2. `f1_measure`值
+## 5. 总结
 
