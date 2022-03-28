@@ -1,5 +1,4 @@
 import torch
-import time
 
 
 def preprocess_data(data_dir, output_file=None):

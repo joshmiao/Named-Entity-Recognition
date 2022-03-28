@@ -2,7 +2,7 @@
 <p align = "center">07032001 苗沂坤 1120201064</p>
 
 ## 1. 实验目的
-完成自然语言处理（nlp）中经典的命名实体识别任务。需要对文段语句中的机构名、地名、人名进行预测并标注。其中相关语料已经经过分词、标注词性。
+&emsp;&emsp;完成自然语言处理（nlp）中经典的命名实体识别任务。需要对文段语句中的机构名、地名、人名进行预测并标注。其中相关语料已经经过分词、标注词性。
 
 ## 2. 系统环境及代码说明
 * python解释器版本
@@ -26,7 +26,7 @@
 4. 经过前三步的操作，对于每个词我们得到了一个大小为$3*651$的向量和一个大小为$3$的向量，分别作为模型的输入值和输出值。我们将这两个向量转化为`torch.tenser`类型的变量，分别放入列表`x_tlist`和`y_tlist`中以便后续训练。
 
 ### 3.2 通过广义线性模型GLM构建Softmax模型
-不妨设输入和输出分别为$X,Y$，其中$X$为上文提到的大小为$3*651$的向量（未出现的词映射为0），$Y$为一个在$\left \{ 0, 1, 2 \right \}$中取值的整数（通过构建三个这样的模型来分别预测机构名、地名、人名的标签）。
+&emsp;&emsp;不妨设输入和输出分别为$X,Y$，其中$X$为上文提到的大小为$3*651$的向量（未出现的词映射为0），$Y$为一个在$\left \{ 0, 1, 2 \right \}$中取值的整数（通过构建三个这样的模型来分别预测机构名、地名、人名的标签）。
 $$ P(Y=0|X)=\phi_0,P(Y=1|X)=\phi_1,P(Y=2|X)=\phi_2$$
 由`Softmax`模型相关理论可以有如下定义：
 $$
@@ -38,9 +38,9 @@ $$l(\theta)=\Sigma_{l=0}^{m}\ln\frac{e^{\theta_{Y(l)}^TX}}{\Sigma_{i=0}^{2} e^{\
 取`loss=-l`进行梯度下降进行参数优化，即可得到最大似然估计下的参数值。
 ### 3.3 通过梯度下降进行参数优化
 #### 3.3.1 自动求导
-自动求导即通过样本求出对应的`loss`值，并调用方法`loss.backword()`即可得到$\theta$的梯度值`theta.grad`，根据学习率`learning_rate`进行梯度下降`theta -= learning_rate * theta.grad`即可。
+&emsp;&emsp;自动求导即通过样本求出对应的`loss`值，并调用方法`loss.backword()`即可得到$\theta$的梯度值`theta.grad`，根据学习率`learning_rate`进行梯度下降`theta -= learning_rate * theta.grad`即可。
 #### 3.3.2 手动求导
-需要通过数学推导直接得出梯度值`grad`的表达式，即$grad=\frac{\mathrm{d}l(\theta)}{\mathrm{d}\theta}$，不妨设$z_i=\theta_i^TX$，即有$\phi_i=\frac{e^{z_i}}{\Sigma_{k=0}^{2} e^{z_k}}$，则由链式法则：
+&emsp;&emsp;需要通过数学推导直接得出梯度值`grad`的表达式，即$grad=\frac{\mathrm{d}l(\theta)}{\mathrm{d}\theta}$，不妨设$z_i=\theta_i^TX$，即有$\phi_i=\frac{e^{z_i}}{\Sigma_{k=0}^{2} e^{z_k}}$，则由链式法则：
 $$
 \frac{\partial l(\phi_0,\phi_1,...,\phi_m)}{\partial z_i}=\frac{\partial l}{\partial \phi_0}\frac{\partial \phi_0}{\partial z_i}+\frac{\partial l}{\partial \phi_1}\frac{\partial \phi_1}{\partial z_i}+...+\frac{\partial l}{\partial \phi_m}\frac{\partial \phi_m}{\partial z_i}$$
 其中：
@@ -69,7 +69,8 @@ $$\frac{\partial l}{\partial \theta_i}=(\phi_i-[Y=i])X(其中[Y=i]为示性函�
 得到`grad`后同自动求导，根据学习率`learning_rate`进行梯度下降`theta -= learning_rate * theta.grad`即可。
 ## 4. 运行结果及分析
 ### 4.1 说明
-`loss`值在程序中除以了样本总数`trainint_cnt`以归一化处理。根据经验，设置学习率`learning_rate = 70`，循环次数`epoch = 40`。每轮训练完成后将统计模型在验证集`validation_set`中的`f1_measure`值。其定义为`f1_measure = 2 * precision_rate * recall_rate / (precision_rate + recall_rate)`，精确率`precision_rate`定义为识别正确的样本数占总识别样本数的百分比，召回率`recall_rate`定义为识别正确的样本数占总样本数的百分比。可以认为`f1_measure`给出了模型好坏的参考标准，越接近$1$代表模型越好。
+&emsp;&emsp;`loss`值在程序中除以了样本总数`trainint_cnt`以归一化处理。根据经验，设置学习率`learning_rate = 70`，循环次数`epoch = 40`。
+&emsp;&emsp;每轮训练完成后将统计模型在验证集`validation_set`中的`f1_measure`值。其定义为`f1_measure = 2 * precision_rate * recall_rate / (precision_rate + recall_rate)`，精确率`precision_rate`定义为识别正确的样本数占总识别样本数的百分比，召回率`recall_rate`定义为识别正确的样本数占总样本数的百分比。可以认为`f1_measure`给出了模型好坏的参考标准，越接近$1$代表模型越好。
 ### 4.2 自动求导`loss`值以及`f1_measure`变化图
 1. `theta0`
 ![img1](auto0_theta0.png)
@@ -93,6 +94,6 @@ $$\frac{\partial l}{\partial \theta_i}=(\phi_i-[Y=i])X(其中[Y=i]为示性函�
 3. `theta2`
 ![img9](auto1_theta2.png)
 ### 4.5 结果分析
-首先可以发现，预测人名、地名的模型`f1_measure`可以达到$0.5$左右（事实上最高可以达到$0.6$）,而预测机构名的模型`f1_measure`只能达到$0.18$左右，有明显差别。
-再者，手动求导和自动求导的效率、准确率没有明显差别，对应的数值差距仅仅有精度上的误差。
+&emsp;&emsp;首先可以发现，预测人名、地名的模型`f1_measure`可以达到$0.5$左右（事实上最高可以达到$0.6$）,而预测机构名的模型`f1_measure`只能达到$0.18$左右，有明显差别。
+&emsp;&emsp;再者，手动求导和自动求导的效率、准确率没有明显差别，对应的数值差距仅仅有精度上的误差。
 ## 5. 总结
