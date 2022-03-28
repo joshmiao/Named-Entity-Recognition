@@ -92,6 +92,7 @@ def manual_grad_training(x_tlist, y_tlist, theta, theta_num, dict_size, epoch, l
             loss += torch.log(sigma)
             if y_tlist[idx][theta_num] != 2:
                 loss -= s[y_tlist[idx][theta_num]]
+            # calculating grad
             for i in range(2):
                 if i != y_tlist[idx][theta_num]:
                     grad[i] += torch.exp(s[i]) / sigma * x_tlist[idx]
